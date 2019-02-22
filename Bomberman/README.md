@@ -4,11 +4,11 @@ To run Bomberman, you'll need Python 3 with the `colorama` and `pygame`
 packages. To install them, type either
 
     pip install colorama pygame
-    
+
 if Python 3 is your default version, or
 
     pip3 install colorama pygame
-    
+
 if you have both Python 2 and Python 3 installed on your system.
 
 # Running Bomberman #
@@ -74,9 +74,9 @@ also reported here:
     # Import necessary stuff
     from entity import CharacterEntity
     from colorama import Fore, Back
-    
+
     class TestCharacter(CharacterEntity):
-    
+
         def do(self, wrld):
             pass
 
@@ -152,7 +152,7 @@ methods to do this:
   monster), `SensedWorld.next()` will take care of that, too. The second element
   in the tuple, `events`, is a list of events that occurred in that world
   configuration.
-  
+
 ### About Events ###
 
 The relevant definitions for events is in
@@ -174,7 +174,7 @@ event is an object of the `Event` class. The class contains the following attrib
   - For `Event.BOMB_HIT_CHARACTER`, `other` is the killed character
   - For `Event.CHARACTER_KILLED_BY_MONSTER`, `other` is the monster
   - For `Event.CHARACTER_FOUND_EXIT`, `other` is `None`
-  
+
 You can print an event `e` simply writing `print(e)`.
 
 ### Example: Searching through States ###
@@ -217,7 +217,7 @@ cell, use `CharacterEntity.set_cell_color(x,y,color)`:
 
     # Import color definitions
     from colorama import Fore, Back
-    
+
     class TestCharacter(CharacterEntity):
         def do(self, wrld):
             # ... some code
@@ -232,7 +232,7 @@ For example, this code marks the entire top row of the world:
 
     # Import color definitions
     from colorama import Fore, Back
-    
+
     class TestCharacter(CharacterEntity):
         def do(self, wrld):
             for x in range(wrld.width()):
@@ -280,4 +280,3 @@ between to match the width defined by the first line.
   to the Last-Man-Standing mode.
 
 Any character or monster must be added in a Python file that runs the scenario.
-
