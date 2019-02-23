@@ -9,4 +9,5 @@ class TestCharacter(CharacterEntity):
 
     def do(self, wrld):
         # Your code here
+        self.move(1,0)
         pass
