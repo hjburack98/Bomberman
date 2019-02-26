@@ -7,6 +7,13 @@ from colorama import Fore, Back
 
 class TestCharacter(CharacterEntity):
 
+    def getDistance(self, x1, y1, x2, y2):
+        xDist = (x1-x2)**2
+        yDist = (y1-y2)**2
+        dist = (xDist + yDist)**0.5
+        return dist
+
+
     def do(self, wrld):
         #
         # Get first monster in the world
@@ -15,91 +22,55 @@ class TestCharacter(CharacterEntity):
         #
         # Go through the possible 8-moves of the monster
         #
-        exit1 = 0
-        exit2 = 0
-        monsters = []
-        bLoc = (-100,-100)
-        exploders = []
-        gWeight = 6
-        mWeight = 10
-        split = [4, 5, 6, 7, 11, 12, 13, 14]
+        # Loop through delta x
+        exit = 0
+        dist = {}
+        moves = {}
+        parent = {}
+        unvisited = []
         for checkx in range(wrld.width()):
             for checky in range(wrld.height()):
-                cell = wrld.monsters_at(checkx,checky)
                 if(wrld.exit_at(checkx, checky)):
-                    exit1 = (checkx, checky)
-                    exit2 = (checkx/2, checky)
-                elif(wrld.bomb_at(checkx, checky)):
-                    bLoc = (checkx, checky)
-                elif(wrld.explosion_at(checkx, checky)):
-                    exploders.append((checkx, checky))
-                elif(cell is None):
-                    pass
-                else:
-                    monsters.append(cell)
-        moveList = {"Move":[], "Score":[]}
-        if(self.y + 1 != wrld.height()):
-            edges = self.x + 1 == wrld.width() or self.x == 0
-            if(wrld.wall_at(self.x, self.y + 1) and edges):
-                self.place_bomb()
-        # Loop through delta x
-        for dx in [-1, 0, 1]:
-            # Avoid out-of-bound indexing
-            nextx = self.x+dx
-            if (nextx >=0) and (nextx < wrld.width()):
-                # Loop through delta y
-                for dy in [-1, 0, 1]:
-                    # Avoid out-of-bound indexing
-                    nexty = self.y+dy
-                    if (nexty >=0) and (nexty < wrld.height()):
-                        # No need to check impossible moves
-                        if not wrld.wall_at(nextx, nexty):
-                            if(self.y in split):
-                                exit = exit2
-                            else:
-                                exit = exit1
-                            mD = 0
-                            mDist = 100
-                            gmdist = 100
-                            lowest = 1
-                            for bad in monsters:
-                                distX = (bad[0].x - nextx)**2
-                                distY = (bad[0].y - nexty)**2
-                                if((distX + distY)**0.5 < mDist):
-                                    mDist = (distX + distY)**0.5
-                                gdistX = (bad[0].x - nextx)**2
-                                gdistY = (bad[0].y - nexty)**2
-                                if((gdistX + gdistY)**0.5 < gmdist):
-                                    gmdist = (distX + distY)**0.5
-                                if(mDist < 4):
-                                    mD = mDist
-                                if(bad[0].y > lowest):
-                                    lowest = bad[0].y
-                            goalX = (exit[0] - nextx)**2
-                            goalY = (exit[1] - nexty)**2
-                            goalD = (goalX + goalY)**0.5
-                            scoring = goalD*3 - 10*mD
-                            bombX = (bLoc[0] - nextx)**2
-                            bombY = (bLoc[1] - nexty)**2
-                            bombD = (bombX + bombY)**0.5
-                            bomber = 0
-                            burning = 0
-                            for cell in exploders:
-                                if(nextx == cell[0] and nexty == cell[1]):
-                                    burning = 500
-                            bCheck = bombD < 2
-                            if(bCheck):
-                                bomber = 500
-                            if(goalD < gmdist or self.y > lowest):
-                                gWeight = 10
-                                mWeight = 0
-                            if(bLoc[0] > 0):
-                                scoring = goalD*gWeight - mD*mWeight + bomber/(1+bombD) + burning
-                            else:
-                                scoring = goalD*gWeight - mD*mWeight + burning
-                            moveList["Move"].append((dx,dy))
-                            moveList["Score"].append(scoring)
-        # print(moveList)
-        indice = moveList["Score"].index(min(moveList["Score"]))
-        decision = moveList["Move"][indice]
-        self.move(decision[0],decision[1])
+                    exit = (checkx, checky)
+                if(not wrld.wall_at(checkx, checky)):
+                    point = (checkx, checky)
+                    unvisited.append(point)
+                    parent[point] = 0
+                    dist[point] = 10000
+                    moves[point] = 0
+        dist[(self.x,self.y)] = 0
+        while(unvisited):
+            d = 10000
+            point = 0
+            for tar in unvisited:
+                if(dist[tar] < d):
+                    d = dist[tar]
+                    point = tar
+            unvisited.remove(point)
+            # next_move = self.pather((self.x,self.y))
+            for dx in [-1, 0, 1]:
+                # Avoid out-of-bound indexing
+                nextx = point[0]+dx
+                if (nextx >=0) and (nextx < wrld.width()):
+                    # Loop through delta y
+                    for dy in [-1, 0, 1]:
+                        # Avoid out-of-bound indexing
+                        nexty = point[1]+dy
+                        if (nexty >=0) and (nexty < wrld.height()):
+                            # No need to check impossible moves
+                            if not wrld.wall_at(nextx, nexty):
+                                newP = (nextx, nexty)
+                                newDist = dist[point] + self.getDistance(nextx,nexty,point[0],point[1])
+                                newMoves = moves[point] + round(self.getDistance(nextx,nexty,point[0],point[1]))
+                                if(newDist < dist[newP]):
+                                    dist[newP] = newDist
+                                    parent[newP] = point
+                                    moves[newP] = newMoves
+
+        motion = moves[exit]
+        curr = exit
+        for i in range(motion - 1):
+            curr = parent[curr]
+        newX = curr[0] - self.x
+        newY = curr[1] - self.y
+        self.move(newX, newY)

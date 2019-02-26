@@ -22,13 +22,13 @@ class TestCharacter(CharacterEntity):
         exploders = []
         gWeight = 6
         mWeight = 10
-        holes = [(-1,-1)]
+        split = [4, 5, 6, 7, 11, 12, 13, 14]
         for checkx in range(wrld.width()):
             for checky in range(wrld.height()):
                 cell = wrld.monsters_at(checkx,checky)
                 if(wrld.exit_at(checkx, checky)):
                     exit1 = (checkx, checky)
-                    exit2 = (checkx/2, checky)
+                    exit2 = (0, checky)
                 elif(wrld.bomb_at(checkx, checky)):
                     bLoc = (checkx, checky)
                 elif(wrld.explosion_at(checkx, checky)):
@@ -39,12 +39,9 @@ class TestCharacter(CharacterEntity):
                     monsters.append(cell)
         moveList = {"Move":[], "Score":[]}
         if(self.y + 1 != wrld.height()):
-            for hole in holes:
-                if(abs(self.x - hole[0])>2):
-                    if(self.y == hole[1]):
-            if(wrld.wall_at(self.x, self.y + 1)):
+            edges = self.x + 1 == wrld.width() or self.x == 0
+            if(wrld.wall_at(self.x, self.y + 1) and edges):
                 self.place_bomb()
-                holes.append((self.x, self.y + 1))
         # Loop through delta x
         for dx in [-1, 0, 1]:
             # Avoid out-of-bound indexing
@@ -57,7 +54,7 @@ class TestCharacter(CharacterEntity):
                     if (nexty >=0) and (nexty < wrld.height()):
                         # No need to check impossible moves
                         if not wrld.wall_at(nextx, nexty):
-                            if(self.y < 16):
+                            if(self.y in split):
                                 exit = exit2
                             else:
                                 exit = exit1
@@ -74,7 +71,7 @@ class TestCharacter(CharacterEntity):
                                 gdistY = (bad[0].y - nexty)**2
                                 if((gdistX + gdistY)**0.5 < gmdist):
                                     gmdist = (distX + distY)**0.5
-                                if(mDist < 6):
+                                if(mDist < 5):
                                     mD = mDist
                                 if(bad[0].y > lowest):
                                     lowest = bad[0].y
@@ -93,15 +90,16 @@ class TestCharacter(CharacterEntity):
                             bCheck = bombD < 5 and (nextx - bLoc[0] < 2 or nexty - bLoc[1] < 2)
                             if(bCheck):
                                 bomber = 500
-                            # if(goalD < gmdist or self.y > lowest):
-                            #     gWeight = 10
-                            #     mWeight = 0
+                            if(goalD < gmdist or self.y > lowest):
+                                gWeight = 10
+                                mWeight = 0
                             if(bLoc[0] > 0):
-                                scoring = goalD*gWeight - mD*mWeight + bomber/(1+bombD)
+                                scoring = goalD*gWeight - mD*mWeight + bomber/(1+bombD) + burning
                             else:
                                 scoring = goalD*gWeight - mD*mWeight + burning
                             moveList["Move"].append((dx,dy))
                             moveList["Score"].append(scoring)
+        # print(moveList)
         indice = moveList["Score"].index(min(moveList["Score"]))
         decision = moveList["Move"][indice]
         self.move(decision[0],decision[1])
