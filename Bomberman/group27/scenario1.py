@@ -122,7 +122,7 @@ class TestCharacter(CharacterEntity):
                         burn = (nextx, nexty) in exploders
                         if not wrld.wall_at(nextx, nexty) and not burn:
                             mD = 0
-                            mDist = 100
+                            mDist = 50
                             closest = 0
                             for bad in monsters:
                                 monsterDist = self.getDistance(bad[0].x,bad[0].y,nextx,nexty)
