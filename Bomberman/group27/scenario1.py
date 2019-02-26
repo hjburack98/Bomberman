@@ -136,11 +136,14 @@ class TestCharacter(CharacterEntity):
                             bomber = 0
                             xAllign = (nextx - bLoc[0]) == 0
                             yAllign = (nexty - bLoc[1]) == 0
-                            bCheck = bombDistance < 5 and (xAllign or yAllign)
+                            bCheck = bombDistance < 3 and (xAllign or yAllign)
+                            #added
+                            if(nextx == 0 or nextx == wrld.width()):
+                                gWeight = 1
                             if(bCheck):
                                 bomber = 500
                             if(mDist < 3):
-                                mD = 10/(mDist+1)
+                                mD =10/(mDist+1)
                             scoring = djikDistance*gWeight + mD*mWeight + bomber/(1+bombDistance)
                             moveList["Move"].append((dx,dy))
                             moveList["Score"].append(scoring)
