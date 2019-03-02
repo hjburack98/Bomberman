@@ -92,19 +92,26 @@ class Game:
         pygame.display.flip()
 
     def go(self):
-        colorama.init(autoreset=True)
-        self.display_gui()
-        #self.draw()
+        # colorama.init(autoreset=True)
+        # self.display_gui()
+        # self.draw()
         while not self.done():
-            self.display_gui()
+            # self.display_gui()
             self.step()
-            self.display_gui()
-            #self.draw()
+            # self.display_gui()
+            # self.draw()
         colorama.deinit()
+        counter = 0
+        for e in self.events:
+            if(e.tpe == 4):
+                counter = counter + 1
+        return counter
 
     def step(self):
         (self.world, self.events) = self.world.next()
-        input("Press Enter to continue...")
+        # input("Press Enter to continue...")
+
+
 
     ###################
     # Private methods #

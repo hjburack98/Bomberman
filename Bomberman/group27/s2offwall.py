@@ -32,7 +32,7 @@ class TestCharacter(CharacterEntity):
             for checky in range(wrld.height()):
                 cell = wrld.monsters_at(checkx,checky)
                 if(wrld.exit_at(checkx, checky)):
-                    exit = (6, checky)
+                    exit = (5, checky)
                     if(self.y + 1 == wrld.height()):
                         exit = (checkx, checky)
                 elif(wrld.bomb_at(checkx, checky)):
@@ -47,7 +47,7 @@ class TestCharacter(CharacterEntity):
                     monsters.append(cell)
         walls = set(walls)
         moveList = {"Move":[], "Score":[]}
-        edges = self.x == exit[0] # or self.x == 0
+        pos = self.x == exit[0] # or self.x == 0
         highest = 20
         farness = 10
         for bad in monsters:
@@ -55,12 +55,12 @@ class TestCharacter(CharacterEntity):
                 highest = bad[0].y
                 farness = abs(self.x - bad[0].x)
         if(self.y + 1 != wrld.height()):
-            if(wrld.wall_at(self.x, self.y + 1) and edges and (farness > 0 or (highest - self.y) > 4)):
+            if(wrld.wall_at(self.x, self.y + 1) and pos and (farness > 0 or (highest - self.y) > 4)):
                 self.place_bomb()
-        if(edges and self.y - 1 in walls and (highest - self.y) < 4):
+        if(self.y - 1 in walls and (highest - self.y) < 4 and highest > self.y):
             exit = (self.x, 0)
             self.place_bomb()
-            self.move(0,-1)
+            # self.move(0,-1)
         # Loop through delta x
         for dx in [-1, 0, 1]:
             # Avoid out-of-bound indexing
